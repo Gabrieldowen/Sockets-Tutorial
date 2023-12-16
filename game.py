@@ -1,6 +1,6 @@
 import pygame
 from network import Network
-
+from settings import *
 
 class Player():
     width = height = 50
@@ -36,8 +36,8 @@ class Game:
         self.net = Network()
         self.width = w
         self.height = h
-        self.player = Player(50, 50)
-        self.player2 = Player(100,100)
+        self.player = Player(50, 50, P1COLOR)
+        self.player2 = Player(100,100,P2COLOR)
         self.canvas = Canvas(self.width, self.height, "Testing...")
 
     def run(self):
@@ -56,19 +56,19 @@ class Game:
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_RIGHT]:
-                if self.player.x <= self.width - self.player.velocity:
+                if self.player.x <= self.width - self.player.width:
                     self.player.move(0)
 
             if keys[pygame.K_LEFT]:
-                if self.player.x >= self.player.velocity:
+                if  self.player.x >= self.player.velocity:
                     self.player.move(1)
 
             if keys[pygame.K_UP]:
-                if self.player.y >= self.player.velocity:
+                if  self.player.y >= self.player.velocity:
                     self.player.move(2)
 
             if keys[pygame.K_DOWN]:
-                if self.player.y <= self.height - self.player.velocity:
+                if self.player.y <= self.height - self.player.height:
                     self.player.move(3)
 
             # Send Network Stuff
@@ -123,4 +123,4 @@ class Canvas:
         return self.screen
 
     def draw_background(self):
-        self.screen.fill((255,255,255))
+        self.screen.fill(BLACK)
