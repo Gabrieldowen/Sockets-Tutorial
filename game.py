@@ -4,6 +4,19 @@ from settings import *
 from player import Player
 
 
+class Bullet:
+    def __init__(self, startx, starty, playerNum, targetx, targety, width = B_WIDTH, height = B_HEIGHT):
+        self.width = width
+        self.height = height
+        self.x = startx
+        self.y = starty
+        self.playerNum = playerNum
+
+    def draw(self, g):
+        pygame.draw.rect(g, BLACK ,(self.x, self.y, self.width, self.height), 0)
+        #g.blit(BLACK, (self.x, self.y))
+
+
 class Game:
 
     def __init__(self, w, h):
@@ -17,8 +30,15 @@ class Game:
     def run(self):
         clock = pygame.time.Clock()
         run = True
+
+        bullets = []
+
         while run:
             clock.tick(60)
+
+            keys = pygame.key.get_pressed()
+            mx, my = pygame.mouse.get_pos()
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -27,21 +47,25 @@ class Game:
                 if event.type == pygame.K_ESCAPE:
                     run = False
 
-            keys = pygame.key.get_pressed()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    b = Bullet(self.player.x, self.player.y, self.player.playerNum, mx, my)
+                    bullets.append(b)
 
-            if keys[pygame.K_RIGHT]:
+            
+
+            if keys[pygame.K_d]:
                 if self.player.x <= self.width - self.player.width:
                     self.player.move(0)
 
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_a]:
                 if  self.player.x >= self.player.velocity:
                     self.player.move(1)
 
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_w]:
                 if  self.player.y >= self.player.velocity:
                     self.player.move(2)
 
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_s]:
                 if self.player.y <= self.height - self.player.height:
                     self.player.move(3)
 
@@ -50,6 +74,8 @@ class Game:
 
             # Update Canvas
             self.canvas.draw_background()
+            for b in bullets:
+                b.draw(self.canvas.get_canvas())
             self.player.draw(self.canvas.get_canvas())
             self.player2.draw(self.canvas.get_canvas())
             self.canvas.update()

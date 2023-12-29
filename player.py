@@ -11,6 +11,7 @@ class Player():
         self.y = starty
         self.velocity = 2
         self.image = pygame.transform.scale(pygame.image.load(f"./assets/p{playerNum}t/p{playerNum}t_r.png"), (self.width, self.height))
+        self.playerNum = playerNum
 
 
     def draw(self, g):
