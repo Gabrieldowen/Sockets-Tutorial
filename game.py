@@ -1,33 +1,7 @@
 import pygame
 from network import Network
 from settings import *
-
-class Player():
-    width = height = 50
-
-    def __init__(self, startx, starty, color=(255,0,0)):
-        self.x = startx
-        self.y = starty
-        self.velocity = 2
-        self.color = color
-
-    def draw(self, g):
-        pygame.draw.rect(g, self.color ,(self.x, self.y, self.width, self.height), 0)
-
-    def move(self, dirn):
-        """
-        :param dirn: 0 - 3 (right, left, up, down)
-        :return: None
-        """
-
-        if dirn == 0:
-            self.x += self.velocity
-        elif dirn == 1:
-            self.x -= self.velocity
-        elif dirn == 2:
-            self.y -= self.velocity
-        else:
-            self.y += self.velocity
+from player import Player
 
 
 class Game:
@@ -36,8 +10,8 @@ class Game:
         self.net = Network()
         self.width = w
         self.height = h
-        self.player = Player(50, 50, P1COLOR)
-        self.player2 = Player(100,100,P2COLOR)
+        self.player = Player(50, 50, 1)
+        self.player2 = Player(100,100, 2)
         self.canvas = Canvas(self.width, self.height, "Testing...")
 
     def run(self):
@@ -123,4 +97,4 @@ class Canvas:
         return self.screen
 
     def draw_background(self):
-        self.screen.fill(BLACK)
+        self.screen.fill(WHITE)
