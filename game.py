@@ -2,7 +2,9 @@ import pygame
 from network import Network
 from settings import *
 from player import Player
+import math
 
+bullets = []
 
 class Bullet:
     def __init__(self, startx, starty, playerNum, targetx, targety, width = B_WIDTH, height = B_HEIGHT):
@@ -11,11 +13,30 @@ class Bullet:
         self.x = startx
         self.y = starty
         self.playerNum = playerNum
+        angle = math.atan2(targety - self.y, targetx - self.x) # gets angle to target in radians
+        self.dx = math.cos(angle) * B_VEL
+        self.dy = math.sin(angle) * B_VEL
+
 
     def draw(self, g):
         pygame.draw.rect(g, BLACK ,(self.x, self.y, self.width, self.height), 0)
         #g.blit(BLACK, (self.x, self.y))
 
+    def move(self):
+        self.x += self.dx
+        self.y += self.dy
+
+
+
+    def collision(self):
+        if self.y > S_HEIGHT:
+            bullets.remove(self)
+        elif self.y < 0:
+            bullets.remove(self)
+        elif self.x > S_HEIGHT:
+            bullets.remove(self)
+        elif self.x < 0:
+            bullets.remove(self)
 
 class Game:
 
@@ -31,7 +52,6 @@ class Game:
         clock = pygame.time.Clock()
         run = True
 
-        bullets = []
 
         while run:
             clock.tick(60)
@@ -39,6 +59,8 @@ class Game:
             keys = pygame.key.get_pressed()
             mx, my = pygame.mouse.get_pos()
 
+            # prints num of bullets on screen
+            print(len(bullets))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -48,7 +70,7 @@ class Game:
                     run = False
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    b = Bullet(self.player.x, self.player.y, self.player.playerNum, mx, my)
+                    b = Bullet(self.player.x + self.player.height/2, self.player.y + self.player.width/2, self.player.playerNum, mx, my)
                     bullets.append(b)
 
             
@@ -68,6 +90,11 @@ class Game:
             if keys[pygame.K_s]:
                 if self.player.y <= self.height - self.player.height:
                     self.player.move(3)
+
+
+            for b in bullets:
+                b.move()
+                b.collision()
 
             # Send Network Stuff
             self.player2.x, self.player2.y = self.parse_data(self.send_data())
