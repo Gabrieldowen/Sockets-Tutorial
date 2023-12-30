@@ -4,7 +4,7 @@ from settings import *
 from player import Player
 import math
 
-bullets = []
+# bullets = []
 
 class Bullet:
     def __init__(self, startx, starty, playerNum, targetx, targety, width = B_WIDTH, height = B_HEIGHT):
@@ -28,7 +28,7 @@ class Bullet:
 
 
 
-    def collision(self):
+    def collision(self, bullets):
         if self.y > S_HEIGHT:
             bullets.remove(self)
         elif self.y < 0:
@@ -47,6 +47,7 @@ class Game:
         self.player = Player(50, 50, 1)
         self.player2 = Player(100,100, 2)
         self.canvas = Canvas(self.width, self.height, "Testing...")
+        self.bullets = []
 
     def run(self):
         clock = pygame.time.Clock()
@@ -60,7 +61,7 @@ class Game:
             mx, my = pygame.mouse.get_pos()
 
             # prints num of bullets on screen
-            print(len(bullets))
+            print(len(self.bullets))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -71,7 +72,7 @@ class Game:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     b = Bullet(self.player.x + self.player.height/2, self.player.y + self.player.width/2, self.player.playerNum, mx, my)
-                    bullets.append(b)
+                    self.bullets.append(b)
 
             
 
@@ -92,16 +93,22 @@ class Game:
                     self.player.move(3)
 
 
-            for b in bullets:
+            for b in self.bullets:
                 b.move()
-                b.collision()
+                b.collision(self.bullets)
 
             # Send Network Stuff
             self.player2.x, self.player2.y = self.parse_data(self.send_data())
+            self.bullets
+
+# SEND BULLET DATA
+ #           bullets.send_data()
+  #          for b in bullets
+   #             bulletPOS.append(b.x)
 
             # Update Canvas
             self.canvas.draw_background()
-            for b in bullets:
+            for b in self.bullets:
                 b.draw(self.canvas.get_canvas())
             self.player.draw(self.canvas.get_canvas())
             self.player2.draw(self.canvas.get_canvas())
@@ -110,10 +117,9 @@ class Game:
         pygame.quit()
 
     def send_data(self):
-        """
-        Send position to server
-        :return: None
-        """
+        #Send position to server
+        #:return: None
+        
         data = str(self.net.id) + ":" + str(self.player.x) + "," + str(self.player.y)
         reply = self.net.send(data)
         return reply
