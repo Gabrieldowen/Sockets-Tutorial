@@ -2,41 +2,9 @@ import pygame
 from network import Network
 from settings import *
 from player import Player
-import math
+from bullet import Bullet
 
 # bullets = []
-
-class Bullet:
-    def __init__(self, startx, starty, playerNum, targetx, targety, width = B_WIDTH, height = B_HEIGHT):
-        self.width = width
-        self.height = height
-        self.x = startx
-        self.y = starty
-        self.playerNum = playerNum
-        angle = math.atan2(targety - self.y, targetx - self.x) # gets angle to target in radians
-        self.dx = math.cos(angle) * B_VEL
-        self.dy = math.sin(angle) * B_VEL
-
-
-    def draw(self, g):
-        pygame.draw.rect(g, BLACK ,(self.x, self.y, self.width, self.height), 0)
-        #g.blit(BLACK, (self.x, self.y))
-
-    def move(self):
-        self.x += self.dx
-        self.y += self.dy
-
-
-
-    def collision(self, bullets):
-        if self.y > S_HEIGHT:
-            bullets.remove(self)
-        elif self.y < 0:
-            bullets.remove(self)
-        elif self.x > S_HEIGHT:
-            bullets.remove(self)
-        elif self.x < 0:
-            bullets.remove(self)
 
 class Game:
 
@@ -48,6 +16,7 @@ class Game:
         self.player2 = Player(100,100, 2)
         self.canvas = Canvas(self.width, self.height, "Testing...")
         self.bullets = []
+        self.bullets2 = []
 
     def run(self):
         clock = pygame.time.Clock()
@@ -61,8 +30,6 @@ class Game:
             mx, my = pygame.mouse.get_pos()
 
             # prints num of bullets on screen
-            print(len(self.bullets))
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -74,8 +41,7 @@ class Game:
                     b = Bullet(self.player.x + self.player.height/2, self.player.y + self.player.width/2, self.player.playerNum, mx, my)
                     self.bullets.append(b)
 
-            
-
+            # player movement
             if keys[pygame.K_d]:
                 if self.player.x <= self.width - self.player.width:
                     self.player.move(0)
@@ -92,24 +58,28 @@ class Game:
                 if self.player.y <= self.height - self.player.height:
                     self.player.move(3)
 
-
+            # bullet movement
             for b in self.bullets:
                 b.move()
                 b.collision(self.bullets)
 
-            # Send Network Stuff
-            self.player2.x, self.player2.y = self.parse_data(self.send_data())
-            self.bullets
-
-# SEND BULLET DATA
- #           bullets.send_data()
-  #          for b in bullets
-   #             bulletPOS.append(b.x)
+            # Send/Recieve Network Stuff
+            self.player2.x, self.player2.y, b = self.parse_data(self.send_data())
 
             # Update Canvas
             self.canvas.draw_background()
+
+            print(f"bullets = {b}")
+            print(f"type = {type(b)}")
+            '''
+
+                        for i in range(len(bx)):
+                b = Bullet(int(bx[i]), int(by[i]), 1, 0, 0)
+                b.draw(self.canvas.get_canvas())'''
+
             for b in self.bullets:
                 b.draw(self.canvas.get_canvas())
+
             self.player.draw(self.canvas.get_canvas())
             self.player2.draw(self.canvas.get_canvas())
             self.canvas.update()
@@ -119,18 +89,29 @@ class Game:
     def send_data(self):
         #Send position to server
         #:return: None
+        bulletsX = []
+        bulletsY = []
+
         
-        data = str(self.net.id) + ":" + str(self.player.x) + "," + str(self.player.y)
+
+        data = str(self.net.id) + ":" + str(self.player.x) + "," + str(self.player.y) + ":"
+
+        for b in self.bullets:
+            data += f"{b.x}, {b.y};"
+
         reply = self.net.send(data)
         return reply
 
     @staticmethod
     def parse_data(data):
         try:
-            d = data.split(":")[1].split(",")
-            return int(d[0]), int(d[1])
+            all = data.split(":")
+            d = all[1].split(",")
+            b = all[2].split(";")
+            b = [i.split(",") for i in b]
+            return int(d[0]), int(d[1]), b
         except:
-            return 0,0
+            return 0,0,0
 
 
 class Canvas:

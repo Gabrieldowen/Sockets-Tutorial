@@ -37,15 +37,15 @@ def threaded_client(conn):
                 arr = reply.split(":")
                 id = int(arr[0])
                 pos[id] = reply
-
                 if id == 0: nid = 1
                 if id == 1: nid = 0
-
                 reply = pos[nid][:]
+                print("Other: " + pos[id][:])
                 print("Sending: " + reply)
 
             conn.sendall(str.encode(reply))
         except:
+            print("exception")
             break
 
     print("Connection Closed")
